@@ -44,6 +44,12 @@ npm run build
    - 输入你的API密钥
 3. 在任何网页上开始与AI助手对话
 
+### 聊天界面
+![聊天界面](./docs/chat.png)
+
+### 翻译功能
+![翻译功能](./docs/translation.png)
+
 ## 开发指南
 
 - `npm run dev` - 启动开发服务器
