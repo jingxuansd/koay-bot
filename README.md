@@ -11,6 +11,7 @@ A Chrome extension with an interactive AI assistant that supports multiple langu
 - 🎨 Clean and intuitive user interface
 - ⚡ Fast and responsive interactions
 - 🌐 Works on any website
+- 🔄 Text translation with selection - just select text and click the translate button
 
 ## Installation
 

@@ -11,7 +11,7 @@
     "<all_urls>"
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "options.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -33,5 +33,6 @@
   "background": {
     "service_worker": "background.js",
     "type": "module"
-  }
+  },
+  "options_page": "options.html"
 }

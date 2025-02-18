@@ -33,7 +33,34 @@
   display: flex;
   flex-direction: column;
   z-index: 10000;
-  transition: opacity 0.3s, transform 0.3s;
+  transition: all 0.3s ease;
+}
+
+.koay-chat-window.fullscreen {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  border-radius: 0;
+  margin: 0;
+}
+
+.koay-fullscreen-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 8px;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+}
+
+.koay-fullscreen-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .koay-chat-window-hidden {

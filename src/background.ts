@@ -10,6 +10,10 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .then(response => sendResponse({ success: true, data: response }))
       .catch(error => sendResponse({ success: false, error: error.message }))
     return true // 保持消息通道打开，等待异步响应
+  } else if (request.type === 'OPEN_OPTIONS_PAGE') {
+    chrome.runtime.openOptionsPage()
+    sendResponse({ success: true })
+    return true
   }
 })
 
