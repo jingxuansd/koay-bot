@@ -44,6 +44,12 @@ npm run build
    - Enter your API key
 3. Start chatting with the AI assistant on any webpage
 
+### Chat Interface
+![Chat Interface](./docs/chat.png)
+
+### Translation Feature
+![Translation Feature](./docs/translation.png)
+
 ## Development
 
 - `npm run dev` - Start development server
