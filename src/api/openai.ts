@@ -1,13 +1,5 @@
-interface ChatResponse {
-  choices: {
-    message: {
-      content: string
-    }
-  }[]
-}
-
 export const openai = {
-  async chat(message: string, apiKey: string): Promise<string> {
+  async chat(message: string, apiKey: string): Promise<ReadableStream> {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -19,7 +11,8 @@ export const openai = {
         messages: [{
           role: 'user',
           content: message
-        }]
+        }],
+        stream: true
       })
     })
 
@@ -27,7 +20,11 @@ export const openai = {
       throw new Error('API请求失败')
     }
 
-    const data: ChatResponse = await response.json()
-    return data.choices[0].message.content
+    const stream = response.body
+    if (!stream) {
+      throw new Error('返回的数据流为空')
+    }
+
+    return stream
   }
 }

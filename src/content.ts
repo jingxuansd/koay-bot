@@ -9,7 +9,6 @@ interface Message {
 
 // 声明全局变量
 let chatWindow: HTMLDivElement
-const AI_THINKING_MESSAGE = 'AI正在思考...'
 const MESSAGES_PER_PAGE = 20
 
 // 创建机器人图标
@@ -54,8 +53,9 @@ async function addMessage(type: 'user' | 'bot', content: string, saveToStorage: 
 
     // 检查messagesContainer是否存在
     if (messagesContainer) {
+      // 将新消息添加到容器的末尾
       messagesContainer.appendChild(messageElement)
-      // 确保滚动到最新消息
+      // 确保滚动到底部显示最新消息
       messagesContainer.scrollTop = messagesContainer.scrollHeight
     } else {
       console.error('消息容器元素未找到')
@@ -64,21 +64,36 @@ async function addMessage(type: 'user' | 'bot', content: string, saveToStorage: 
 
     // 只在需要时保存消息到storage
     if (saveToStorage) {
-      // 保存消息到chrome.storage.sync
-      const { messages = [] } = await chrome.storage.sync.get(['messages'])
-      const newMessage = {
-        type,
-        content,
-        timestamp: new Date().toISOString()
+      try {
+        // 保存消息到chrome.storage.sync
+        const { messages = [] } = await chrome.storage.sync.get(['messages'])
+        const newMessage = {
+          type,
+          content,
+          timestamp: new Date().toISOString()
+        }
+
+        // 计算新消息的大小
+        const messageSize = new TextEncoder().encode(JSON.stringify(newMessage)).length
+        const maxSize = 8192 // Chrome storage.sync的单项最大限制为8KB
+
+        if (messageSize > maxSize) {
+          console.warn('消息太大，无法保存到storage')
+          return messageElement
+        }
+
+        // 将新消息添加到数组末尾
+        messages.push(newMessage)
+        
+        // 保持最近的消息，确保不超过配额
+        while (messages.length > 0 && new TextEncoder().encode(JSON.stringify(messages)).length > maxSize) {
+          messages.pop() // 移除最旧的消息
+        }
+        
+        await chrome.storage.sync.set({ messages })
+      } catch (error) {
+        console.error('保存消息到storage失败:', error)
       }
-      messages.push(newMessage)
-      
-      // 保持最近的100条消息
-      if (messages.length > 100) {
-        messages.shift()
-      }
-      
-      await chrome.storage.sync.set({ messages })
     }
 
     return messageElement
@@ -127,41 +142,114 @@ function createChatWindow() {
   const sendBtn = document.createElement('button')
   sendBtn.textContent = '发送'
   sendBtn.style.marginLeft = '8px'
+  
+  // 添加Reason按钮
+  const reasonBtn = document.createElement('button')
+  reasonBtn.textContent = 'Reason'
+  reasonBtn.className = 'koay-reason-btn'
+  reasonBtn.style.marginLeft = '8px'
+  reasonBtn.style.backgroundColor = '#f5f5f5'
+  reasonBtn.style.border = '1px solid #ddd'
+  reasonBtn.style.borderRadius = '4px'
+  reasonBtn.style.padding = '4px 8px'
+  reasonBtn.style.cursor = 'pointer'
+
+  // 从storage获取reason状态
+  chrome.storage.local.get(['reasonMode']).then(({ reasonMode = false }) => {
+    reasonBtn.style.backgroundColor = reasonMode ? '#4a90e2' : '#f5f5f5'
+    reasonBtn.style.color = reasonMode ? 'white' : 'black'
+  })
+
+  // 添加点击事件
+  reasonBtn.addEventListener('click', async () => {
+    const { reasonMode = false } = await chrome.storage.local.get(['reasonMode'])
+    const newReasonMode = !reasonMode
+    await chrome.storage.local.set({ reasonMode: newReasonMode })
+    reasonBtn.style.backgroundColor = newReasonMode ? '#4a90e2' : '#f5f5f5'
+    reasonBtn.style.color = newReasonMode ? 'white' : 'black'
+  })
+
   inputContainer.appendChild(input)
+  inputContainer.appendChild(reasonBtn)
   inputContainer.appendChild(sendBtn)
   chatWindow.appendChild(inputContainer)
 
   // 添加发送消息事件
+  // 修改handleSendMessage函数中的端口连接处理
+  // 处理用户消息的函数
+  async function handleUserMessage(message: string): Promise<void> {
+    await addMessage('user', message)
+  }
+  
+  // 处理机器人消息的函数
+  async function handleBotMessage(): Promise<{ connectionManager: ConnectionManager, messageElement: HTMLDivElement }> {
+    const botMessage = await addMessage('bot', '', false)
+    if (!botMessage) throw new Error('创建消息元素失败')
+  
+    const connectionManager = new ConnectionManager({
+      onData: (content) => {
+        if (botMessage) {
+          botMessage.innerHTML = content
+        }
+      },
+      onError: (error: unknown) => {
+        if (botMessage) {
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          const formattedError = errorMessage.includes('Receiving end does not exist') 
+            ? '无法建立连接，请检查扩展是否正常运行。如果问题持续，请尝试重新加载页面。' 
+            : `抱歉，接收消息失败：${errorMessage}`
+          botMessage.innerHTML = formattedError
+        }
+      },
+      onEnd: () => {
+        if (connectionManager) {
+          connectionManager.disconnect()
+        }
+      }
+    })
+  
+    connectionManager.connect()
+    return { connectionManager, messageElement: botMessage }
+  }
+  
+  // 主消息处理函数
   const handleSendMessage = async () => {
     const message = input.value.trim()
     if (!message) return
-
-    // 添加用户消息
-    await addMessage('user', message)
-    input.value = ''
-
-    // 添加临时的思考提示
-    const thinkingMessage = await addMessage('bot', AI_THINKING_MESSAGE)
-
+  
+    let connectionManager: ConnectionManager | undefined
+  
     try {
-      // 发送消息到background script
-      const response = await chrome.runtime.sendMessage({ type: 'CHAT_MESSAGE', message })
-      console.log('收到background script响应:', response)
-      // 移除旧的思考提示消息
-      const messagesContainer = chatWindow.querySelector('.koay-chat-messages') as HTMLDivElement
-      // 检查thinkingMessage是否为HTMLElement类型并且在messagesContainer中
-      if (thinkingMessage && messagesContainer.contains(thinkingMessage)) {
-        messagesContainer.removeChild(thinkingMessage)
-      }
+      // 先处理用户消息并清空输入框，提供即时反馈
+      await handleUserMessage(message)
+      input.value = ''
+
+      // 处理机器人消息
+      const { connectionManager: cm } = await handleBotMessage()
+      connectionManager = cm
+  
+      // 确保在组件卸载时断开连接
+      window.addEventListener('beforeunload', () => {
+        if (connectionManager) {
+          connectionManager.disconnect()
+        }
+      })
+  
+      // 获取reasonMode状态
+      const { reasonMode = false } = await chrome.storage.local.get(['reasonMode'])
       
-      // 添加新的回复消息
-      await addMessage('bot', response.data)
+      // 发送消息到background script
+      connectionManager.sendMessage({ 
+        type: 'CHAT_MESSAGE', 
+        message,
+        reasonMode
+      })
     } catch (error) {
       console.error('发送消息失败:', error)
-      if (thinkingMessage) {
-        thinkingMessage.innerHTML = '抱歉，发送消息失败，请检查配置是否正确。'
-      } else {
-        await addMessage('bot', '抱歉，发送消息失败，请检查配置是否正确。')
+      await addMessage('bot', '抱歉，发送消息失败，请检查配置是否正确。')
+      // 确保在发生错误时断开连接
+      if (connectionManager) {
+        connectionManager.disconnect()
       }
     }
   }
@@ -207,7 +295,7 @@ function createChatWindow() {
 async function loadChatHistory() {
   try {
     const { messages = [] } = await chrome.storage.sync.get(['messages'])
-    const recentMessages = (messages as Message[]).filter(msg => !(msg.type === 'bot' && msg.content === AI_THINKING_MESSAGE)).slice(-MESSAGES_PER_PAGE)
+    const recentMessages = (messages as Message[]).slice(-MESSAGES_PER_PAGE)
     
     // 创建加载更多按钮
     if (messages.length > MESSAGES_PER_PAGE) {
@@ -225,7 +313,6 @@ async function loadChatHistory() {
         loadMoreBtn.addEventListener('click', async () => {
           try {
             const olderMessages = (messages as Message[])
-              .filter(msg => !(msg.type === 'bot' && msg.content === AI_THINKING_MESSAGE))
               .slice(-currentOffset - MESSAGES_PER_PAGE, -currentOffset)
             if (olderMessages.length > 0) {
               for (const message of olderMessages) {
@@ -257,6 +344,7 @@ async function loadChatHistory() {
 // 初始化
 createBotIcon()
 import { initializeTranslateEvents } from './translate/events'
+import ConnectionManager from './utils/connectionManager'
 
 // 初始化翻译功能
 initializeTranslateEvents()

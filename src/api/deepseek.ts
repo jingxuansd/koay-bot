@@ -1,13 +1,5 @@
-interface ChatResponse {
-  choices: {
-    message: {
-      content: string
-    }
-  }[]
-}
-
 export const deepseek = {
-  async chat(message: string, apiKey: string): Promise<string> {
+  async chat(message: string, apiKey: string, model: string = 'deepseek-chat'): Promise<ReadableStream> {
     const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
       headers: {
@@ -15,11 +7,12 @@ export const deepseek = {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: model,
         messages: [{
           role: 'user',
           content: message
-        }]
+        }],
+        stream: true
       })
     })
 
@@ -27,7 +20,11 @@ export const deepseek = {
       throw new Error('API请求失败')
     }
 
-    const data: ChatResponse = await response.json()
-    return data.choices[0].message.content
+    const stream = response.body
+    if (!stream) {
+      throw new Error('返回的数据流为空')
+    }
+
+    return stream
   }
 }
