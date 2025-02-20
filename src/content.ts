@@ -136,42 +136,88 @@ function createChatWindow() {
   // 创建输入区域
   const inputContainer = document.createElement('div')
   inputContainer.className = 'koay-chat-input'
-  const input = document.createElement('input')
-  input.type = 'text'
-  input.placeholder = '输入消息...'
-  const sendBtn = document.createElement('button')
-  sendBtn.textContent = '发送'
-  sendBtn.style.marginLeft = '8px'
+
+  // 添加Reason标签
+  const reasonContainer = document.createElement('div')
+  reasonContainer.className = 'koay-reason-container'
+  reasonContainer.style.cssText = `
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+  `
   
-  // 添加Reason按钮
-  const reasonBtn = document.createElement('button')
-  reasonBtn.textContent = 'Reason'
-  reasonBtn.className = 'koay-reason-btn'
-  reasonBtn.style.marginLeft = '8px'
-  reasonBtn.style.backgroundColor = '#f5f5f5'
-  reasonBtn.style.border = '1px solid #ddd'
-  reasonBtn.style.borderRadius = '4px'
-  reasonBtn.style.padding = '4px 8px'
-  reasonBtn.style.cursor = 'pointer'
+  const reasonLabel = document.createElement('div')
+  reasonLabel.className = 'koay-reason-label'
+  reasonLabel.textContent = 'Reason'
+  reasonLabel.style.cssText = `
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
+    background-color: rgba(255, 255, 255, 0.8);
+  `
 
   // 从storage获取reason状态
   chrome.storage.local.get(['reasonMode']).then(({ reasonMode = false }) => {
-    reasonBtn.style.backgroundColor = reasonMode ? '#4a90e2' : '#f5f5f5'
-    reasonBtn.style.color = reasonMode ? 'white' : 'black'
+    reasonLabel.style.backgroundColor = reasonMode ? '#4a90e2' : '#f5f5f5'
+    reasonLabel.style.color = reasonMode ? 'white' : '#666'
+    reasonLabel.style.border = reasonMode ? '1px solid #4a90e2' : '1px solid #ddd'
   })
 
   // 添加点击事件
-  reasonBtn.addEventListener('click', async () => {
+  reasonLabel.addEventListener('click', async () => {
     const { reasonMode = false } = await chrome.storage.local.get(['reasonMode'])
     const newReasonMode = !reasonMode
     await chrome.storage.local.set({ reasonMode: newReasonMode })
-    reasonBtn.style.backgroundColor = newReasonMode ? '#4a90e2' : '#f5f5f5'
-    reasonBtn.style.color = newReasonMode ? 'white' : 'black'
+    reasonLabel.style.backgroundColor = newReasonMode ? '#4a90e2' : '#f5f5f5'
+    reasonLabel.style.color = newReasonMode ? 'white' : '#666'
+    reasonLabel.style.border = newReasonMode ? '1px solid #4a90e2' : '1px solid #ddd'
   })
 
+  // 添加hover效果
+  reasonLabel.addEventListener('mouseover', async () => {
+    const { reasonMode = false } = await chrome.storage.local.get(['reasonMode'])
+    if (!reasonMode) {
+      reasonLabel.style.backgroundColor = '#e8e8e8'
+    }
+  })
+
+  reasonLabel.addEventListener('mouseout', async () => {
+    const { reasonMode = false } = await chrome.storage.local.get(['reasonMode'])
+    if (!reasonMode) {
+      reasonLabel.style.backgroundColor = '#f5f5f5'
+    }
+  })
+
+  reasonContainer.appendChild(reasonLabel)
+  
+  const input = document.createElement('input')
+  input.type = 'text'
+  input.placeholder = '输入消息...'
+  input.style.cssText = `
+    flex: 1;
+    padding: 8px 12px;
+    margin: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+  `
+
+  // 添加回车键监听器
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  })
+
+  inputContainer.appendChild(reasonContainer)
   inputContainer.appendChild(input)
-  inputContainer.appendChild(reasonBtn)
-  inputContainer.appendChild(sendBtn)
   chatWindow.appendChild(inputContainer)
 
   // 添加发送消息事件
@@ -190,6 +236,11 @@ function createChatWindow() {
       onData: (content) => {
         if (botMessage) {
           botMessage.innerHTML = content
+          // 获取消息容器并滚动到底部
+          const messagesContainer = chatWindow.querySelector('.koay-chat-messages')
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
+          }
         }
       },
       onError: (error: unknown) => {
@@ -253,13 +304,6 @@ function createChatWindow() {
       }
     }
   }
-
-  sendBtn.addEventListener('click', handleSendMessage)
-  input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage()
-    }
-  })
 
   document.body.appendChild(chatWindow)
 

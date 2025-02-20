@@ -70,7 +70,7 @@
 }
 
 .koay-chat-header {
-  padding: 12px;
+  padding: 8px 12px;
   background: #4a90e2;
   color: white;
   border-radius: 8px 8px 0 0;
@@ -84,22 +84,23 @@
 }
 
 .koay-chat-message {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   max-width: 80%;
+  font-size: 13px;
 }
 
 .koay-chat-message.user {
   margin-left: auto;
   background: #4a90e2;
   color: white;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 12px 12px 0 12px;
 }
 
 .koay-chat-message.bot {
   margin-right: auto;
   background: #f1f1f1;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 12px 12px 12px 0;
 }
 
@@ -107,23 +108,56 @@
   padding: 12px;
   border-top: 1px solid #eee;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.koay-reason-btn {
+  align-self: flex-end;
+  padding: 4px 12px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.koay-reason-btn.active {
+  background: #4a90e2;
+  color: white;
+  border-color: #4a90e2;
+}
+
+.koay-settings-btn {
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.koay-settings-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .koay-chat-input input {
   flex: 1;
-  padding: 8px;
+  padding: 8px 12px;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-right: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
 }
 
 .koay-chat-input button {
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: #4a90e2;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 13px;
 }
 
 .koay-chat-input button:hover {

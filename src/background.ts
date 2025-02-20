@@ -6,16 +6,20 @@ type ModelType = 'deepseek-r1' | 'chatgpt'
 
 // 处理来自content script的消息
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  if (request.type === 'CHAT_MESSAGE') {
-    if (!request.message) {
-      sendResponse({ success: false, error: '消息内容不能为空' })
-      return true
-    }
-    sendResponse({ success: true }) // 立即响应以确认消息已收到
-    return true
-  } else if (request.type === 'OPEN_OPTIONS_PAGE') {
+  if (request.type === 'OPEN_OPTIONS_PAGE') {
     chrome.runtime.openOptionsPage()
     sendResponse({ success: true })
+
+    return true
+  } else if (request.type === 'TRANSLATE_REQUEST') {
+    handleTranslateMessage(request.message).then((response) => {
+      if (response) {
+        sendResponse({ success: true, data: response })
+      } else {
+        sendResponse({ success: false, error: '翻译失败，请稍后重试' })
+      }
+    })
+
     return true
   }
 })
@@ -54,7 +58,9 @@ async function handleStreamData(stream: ReadableStream, port: chrome.runtime.Por
     port.onDisconnect.addListener(() => {
       isPortConnected = false
       console.log('端口连接已断开')
-      reader.cancel()
+      if (reader && !reader.closed) {
+        reader.cancel()
+      }
     })
 
     while (isPortConnected) {
@@ -114,5 +120,30 @@ async function handleChatMessage(message: string, reasonMode: boolean = false) {
       return await openai.chat(message, apiKey)
     default:
       throw new Error('不支持的语言模型')
+  }
+}
+
+// 处理翻译消息
+async function handleTranslateMessage(message: string) {
+  // 从storage获取配置
+  const { model, apiKey } = await chrome.storage.local.get(['model', 'apiKey'])
+
+  if (!apiKey) {
+    throw new Error('请先配置API密钥')
+  }
+
+  try {
+    // 根据选择的模型调用不同的API
+    switch (model as ModelType) {
+      case 'deepseek-r1':
+        return await deepseek.chatNonStream(message, apiKey)
+      case 'chatgpt':
+        return await openai.chatNonStream(message, apiKey)
+      default:
+        throw new Error('不支持的语言模型')
+    }
+  } catch (error) {
+    console.error('翻译请求失败:', error)
+    throw new Error(error instanceof Error ? error.message : '翻译失败，请稍后重试')
   }
 }
