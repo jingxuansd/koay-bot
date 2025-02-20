@@ -18,6 +18,12 @@ export function parseStreamData(decodedData: string): string | null {
     // 处理每个数据块
     for (const block of dataBlocks) {
       const jsonStr = block.trim()
+      // 跳过特殊数据块，如keep-alive
+      if (jsonStr.startsWith(':')) {
+        console.debug('跳过特殊数据块:', jsonStr)
+        continue
+      }
+      
       if (jsonStr) {
         try {
           // 尝试解析JSON数据
@@ -25,8 +31,13 @@ export function parseStreamData(decodedData: string): string | null {
           
           // 检查数据结构的完整性
           if (!jsonData.choices || !Array.isArray(jsonData.choices)) {
-            console.warn('数据块格式不正确，缺少choices数组:', jsonStr)
+            console.debug('数据块格式不正确，缺少choices数组:', jsonStr)
             continue
+          }
+
+          const reasioningContent = jsonData.choices[0]?.delta?.reasoning_content
+          if (reasioningContent) {
+            combinedContent += reasioningContent
           }
 
           const content = jsonData.choices[0]?.delta?.content
@@ -34,8 +45,8 @@ export function parseStreamData(decodedData: string): string | null {
             combinedContent += content
           }
         } catch (parseError) {
-          // 提供更详细的错误信息
-          console.warn('数据块解析失败:', {
+          // 提供更详细的错误信息，但降低日志级别为debug
+          console.debug('数据块解析失败:', {
             block: jsonStr,
             error: parseError instanceof Error ? parseError.message : '未知错误'
           })

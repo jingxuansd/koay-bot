@@ -1,4 +1,5 @@
 import { createTranslateButton, createTranslateResult } from './components'
+import { marked } from 'marked'
 
 // 声明全局变量
 let translateBtn: HTMLDivElement | null = null
@@ -23,6 +24,8 @@ async function handleTranslate(selectedText: string, rect: DOMRect) {
     translateResult.style.left = `${rect.right + window.scrollX}px`
     translateResult.style.top = `${rect.bottom + window.scrollY + 5}px`
     translateResult.textContent = '正在翻译...'
+    translateResult.style.opacity = '1'
+    translateResult.style.transform = 'translateY(0)'
     
     // 添加淡入效果
     setTimeout(() => {
@@ -32,12 +35,20 @@ async function handleTranslate(selectedText: string, rect: DOMRect) {
       }
     }, 0)
 
-    const response = await chrome.runtime.sendMessage({
-      type: 'CHAT_MESSAGE',
-      message: `请将以下文本翻译成中文：\n${selectedText}`
-    })
+    // 点击后立即隐藏翻译按钮
+    if (translateBtn) {
+      translateBtn.style.display = 'none';
+    }
 
-    translateResult.textContent = response.data
+    chrome.runtime.sendMessage({ type: 'TRANSLATE_REQUEST', message: `请将以下文本翻译成中文：\n${selectedText}` }, async (response) => {
+      console.log('Response from background:', response);
+      if (translateResult) {
+        // 使用marked库渲染Markdown
+        const markedText = await marked.parse(response.data);
+        translateResult.innerHTML = markedText;
+      }
+    });
+    
   } catch (error) {
     console.error('翻译失败:', error)
     if (translateResult) {

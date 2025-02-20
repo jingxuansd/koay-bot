@@ -27,7 +27,8 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["content.css", "config.css", "popup.css"]
+      "css": ["content.css", "config.css", "popup.css"],
+      "type": "module"
     }
   ],
   "background": {
