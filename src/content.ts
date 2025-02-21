@@ -358,8 +358,10 @@ async function loadChatHistory() {
 // 初始化
 createBotIcon()
 import { initializeTranslateEvents } from './translate/events'
+import { initializeFullPageTranslate } from './translate/fullPageTranslate'
+
+// 初始化所有功能
+initializeTranslateEvents()
+initializeFullPageTranslate()
 import ConnectionManager from './utils/connectionManager'
 import { isMessageTooBig, saveMessage } from './utils/storage'
-
-// 初始化翻译功能
-initializeTranslateEvents()

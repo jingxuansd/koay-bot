@@ -2,6 +2,24 @@ import { openai } from './api/openai'
 import { deepseek } from './api/deepseek'
 import { parseStreamData } from './utils/streamParser'
 
+// 监听扩展程序安装事件
+chrome.runtime.onInstalled.addListener(() => {
+  // 创建右键菜单
+  chrome.contextMenus.create({
+    id: 'koay-translate-full-page',
+    title: 'koay 翻译全文',
+    contexts: ['page']
+  })
+})
+
+// 监听右键菜单点击事件
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === 'koay-translate-full-page' && tab?.id) {
+    // 向content script发送开始翻译的消息
+    chrome.tabs.sendMessage(tab.id, { type: 'START_FULL_PAGE_TRANSLATE' })
+  }
+})
+
 type ModelType = 'deepseek-r1' | 'chatgpt'
 
 // 处理来自content script的消息
