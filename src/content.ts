@@ -15,7 +15,8 @@ const MESSAGES_PER_PAGE = 20
 function createBotIcon() {
   const botIcon = document.createElement('div')
   botIcon.className = 'koay-bot-icon'
-  botIcon.innerHTML = '🤖'
+  // 使用dog-face.svg作为图标
+  botIcon.innerHTML = 'K'
   document.body.appendChild(botIcon)
 
   // 添加点击事件
@@ -64,36 +65,10 @@ async function addMessage(type: 'user' | 'bot', content: string, saveToStorage: 
 
     // 只在需要时保存消息到storage
     if (saveToStorage) {
-      try {
-        // 保存消息到chrome.storage.sync
-        const { messages = [] } = await chrome.storage.sync.get(['messages'])
-        const newMessage = {
-          type,
-          content,
-          timestamp: new Date().toISOString()
-        }
-
-        // 计算新消息的大小
-        const messageSize = new TextEncoder().encode(JSON.stringify(newMessage)).length
-        const maxSize = 8192 // Chrome storage.sync的单项最大限制为8KB
-
-        if (messageSize > maxSize) {
-          console.warn('消息太大，无法保存到storage')
-          return messageElement
-        }
-
-        // 将新消息添加到数组末尾
-        messages.push(newMessage)
-        
-        // 保持最近的消息，确保不超过配额
-        while (messages.length > 0 && new TextEncoder().encode(JSON.stringify(messages)).length > maxSize) {
-          messages.pop() // 移除最旧的消息
-        }
-        
-        await chrome.storage.sync.set({ messages })
-      } catch (error) {
-        console.error('保存消息到storage失败:', error)
+      if (isMessageTooBig(type, content)) {
+        return messageElement
       }
+      saveMessage(type, content)
     }
 
     return messageElement
@@ -113,20 +88,37 @@ function createChatWindow() {
   header.className = 'koay-chat-header'
   header.innerHTML = `
     <span>Koay Bot</span>
-    <button class="koay-fullscreen-btn">⛶</button>
-    <button class="koay-settings-btn" style="float: right; background: none; border: none; color: white; cursor: pointer;">⚙️</button>
+    <button class="koay-settings-btn" style="float: right; background: none; border: none; color: white; cursor: pointer; width: 24px; height: 24px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 4px; transition: all 0.2s ease;">
+      <span style="width: 2px; height: 2px; background-color: white; border-radius: 50%; transition: background-color 0.2s ease;"></span>
+      <span style="width: 2px; height: 2px; background-color: white; border-radius: 50%; transition: background-color 0.2s ease;"></span>
+      <span style="width: 2px; height: 2px; background-color: white; border-radius: 50%; transition: background-color 0.2s ease;"></span>
+    </button>
   `
 
-  // 添加全屏按钮点击事件
-  const fullscreenBtn = header.querySelector('.koay-fullscreen-btn')
-  fullscreenBtn?.addEventListener('click', () => {
-    chatWindow.classList.toggle('fullscreen')
-    // 更新全屏按钮图标
-    if (fullscreenBtn instanceof HTMLButtonElement) {
-      fullscreenBtn.textContent = chatWindow.classList.contains('fullscreen') ? '⛶' : '⛶'
-    }
-  })
   chatWindow.appendChild(header)
+
+  // 创建全屏按钮
+  const fullscreenBtn = document.createElement('button')
+  fullscreenBtn.className = 'koay-fullscreen-btn'
+  fullscreenBtn.textContent = '⛶'
+
+  fullscreenBtn.addEventListener('click', () => {
+    chatWindow.classList.toggle('fullscreen')
+    fullscreenBtn.textContent = chatWindow.classList.contains('fullscreen') ? '⛶' : '⛶'
+  })
+
+  // 添加hover效果
+  fullscreenBtn.addEventListener('mouseover', () => {
+    fullscreenBtn.style.transform = 'scale(1.1)'
+    fullscreenBtn.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)'
+  })
+
+  fullscreenBtn.addEventListener('mouseout', () => {
+    fullscreenBtn.style.transform = 'scale(1)'
+    fullscreenBtn.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'
+  })
+
+  chatWindow.appendChild(fullscreenBtn)
 
   // 创建消息区域
   const messagesContainer = document.createElement('div')
@@ -140,27 +132,11 @@ function createChatWindow() {
   // 添加Reason标签
   const reasonContainer = document.createElement('div')
   reasonContainer.className = 'koay-reason-container'
-  reasonContainer.style.cssText = `
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1000;
-  `
   
   const reasonLabel = document.createElement('div')
   reasonLabel.className = 'koay-reason-label'
   reasonLabel.textContent = 'Reason'
-  reasonLabel.style.cssText = `
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4px);
-    background-color: rgba(255, 255, 255, 0.8);
-  `
+
 
   // 从storage获取reason状态
   chrome.storage.local.get(['reasonMode']).then(({ reasonMode = false }) => {
@@ -199,14 +175,6 @@ function createChatWindow() {
   const input = document.createElement('input')
   input.type = 'text'
   input.placeholder = '输入消息...'
-  input.style.cssText = `
-    flex: 1;
-    padding: 8px 12px;
-    margin: 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 13px;
-  `
 
   // 添加回车键监听器
   input.addEventListener('keypress', (e) => {
@@ -253,6 +221,8 @@ function createChatWindow() {
         }
       },
       onEnd: () => {
+        // 保存机器人消息到storage
+        saveMessage('bot', botMessage.innerHTML)
         if (connectionManager) {
           connectionManager.disconnect()
         }
@@ -389,6 +359,7 @@ async function loadChatHistory() {
 createBotIcon()
 import { initializeTranslateEvents } from './translate/events'
 import ConnectionManager from './utils/connectionManager'
+import { isMessageTooBig, saveMessage } from './utils/storage'
 
 // 初始化翻译功能
 initializeTranslateEvents()

@@ -4,15 +4,16 @@
   bottom: 20px;
   width: 50px;
   height: 50px;
-  background: #4a90e2;
+  background: #6caaf0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 24px;
-  color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-family: 'Courier New', Courier, monospace;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
   z-index: 10000;
 }
@@ -29,7 +30,7 @@
   height: 500px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   z-index: 10000;
@@ -37,25 +38,34 @@
 }
 
 .koay-chat-window.fullscreen {
-  right: 0;
-  bottom: 0;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100vh;
-  border-radius: 0;
+  right: 5%;
+  bottom: 5vh;
+  left: 5%;
+  top: 5vh;
+  width: 90%;
+  height: 90vh;
+  border-radius: 10;
   margin: 0;
 }
 
 .koay-fullscreen-btn {
-  background: none;
+  position: absolute;
+  right: 20px;
+  bottom: 60px;
+  background: #4a91e200;
   border: none;
-  color: white;
+  color: rgb(95, 93, 93);
   cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 18px;
-  margin-right: 8px;
-  padding: 4px 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+  z-index: 1000;
 }
 
 .koay-fullscreen-btn:hover {
@@ -91,7 +101,7 @@
 
 .koay-chat-message.user {
   margin-left: auto;
-  background: #4a90e2;
+  background: #4a91e2d1;
   color: white;
   padding: 6px 10px;
   border-radius: 12px 12px 0 12px;
@@ -99,7 +109,7 @@
 
 .koay-chat-message.bot {
   margin-right: auto;
-  background: #f1f1f1;
+  background: rgba(241, 241, 241, 0.75);
   padding: 6px 10px;
   border-radius: 12px 12px 12px 0;
 }
@@ -112,21 +122,15 @@
   gap: 8px;
 }
 
-.koay-reason-btn {
-  align-self: flex-end;
-  padding: 4px 12px;
-  background: #f5f5f5;
+.koay-chat-input input {
+  flex: 1;
+  padding: 8px 12px;
+  margin: 0;
   border: 1px solid #ddd;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.2s ease;
-}
-
-.koay-reason-btn.active {
-  background: #4a90e2;
-  color: white;
-  border-color: #4a90e2;
+  border-radius: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
 }
 
 .koay-settings-btn {
@@ -137,29 +141,25 @@
 }
 
 .koay-settings-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
 }
 
-.koay-chat-input input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
+.koay-reason-container {
+  position: absolute;
+  right: 60px;
+  bottom: 60px;
+  transform: none;
+  z-index: 1000;
 }
 
-.koay-chat-input button {
-  padding: 6px 12px;
-  background: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 4px;
+.koay-reason-label {
   cursor: pointer;
-  font-size: 13px;
-}
-
-.koay-chat-input button:hover {
-  background: #357abd;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+  background-color: rgba(255, 255, 255, 0.8);
 }

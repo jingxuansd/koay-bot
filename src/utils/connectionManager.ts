@@ -16,8 +16,12 @@ class ConnectionManager {
     this.options = options
   }
 
-  connect() {
+  connect(reasonMode: boolean = false) {
     try {
+      if (reasonMode) {
+        this.fullContent = '> '
+      }
+
       // 确保在重新连接前清理旧的连接
       if (this.port) {
         this.disconnect()
