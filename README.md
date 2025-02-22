@@ -11,7 +11,16 @@ A Chrome extension with an interactive AI assistant that supports multiple langu
 - 🎨 Clean and intuitive user interface
 - ⚡ Fast and responsive interactions
 - 🌐 Works on any website
-- 🔄 Text translation with selection - just select text and click the translate button
+- 🔄 Smart Translation Features:
+  - Quick Translation: Select text and instantly get translations
+  - Full Page Translation: Translate entire documents with one click
+  - Multi-language Support: Works with various language pairs
+- 🔍 Advanced Search Capabilities:
+  - Deep Search: Quickly find content with keywords
+  - Advanced Filtering: Refine search results with precision
+- 📝 Document Intelligence:
+  - Document Summarization: Get concise summaries of long documents
+  - Key Points Extraction: Automatically identify and highlight important information
 
 ## Installation
 
@@ -43,12 +52,6 @@ npm run build
    - Select your preferred AI model (DeepSeek-R1 or ChatGPT)
    - Enter your API key
 3. Start chatting with the AI assistant on any webpage
-
-### Chat Interface
-![Chat Interface](./docs/chat.png)
-
-### Translation Feature
-![Translation Feature](./docs/translation.png)
 
 ## Development
 
