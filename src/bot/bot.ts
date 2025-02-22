@@ -42,7 +42,7 @@ export function createChatWindow() {
 
   // 创建头像
   const avatar = document.createElement('img')
-  avatar.src = chrome.runtime.getURL('https://cdn-icons-png.flaticon.com/512/6596/6596121.png')
+  avatar.src = 'https://cdn-icons-png.flaticon.com/512/6596/6596121.png'
   avatar.className = 'koay-avatar'
 
   header.appendChild(avatar)
@@ -137,14 +137,46 @@ export function createChatWindow() {
   }
   
   // 处理机器人消息的函数
-  async function handleBotMessage(): Promise<{ connectionManager: ConnectionManager, messageElement: HTMLDivElement }> {
-    const botMessage = await addMessage('bot', '', false)
-    if (!botMessage) throw new Error('创建消息元素失败')
+  async function handleBotMessage(reasonMode: boolean = false): Promise<{ connectionManager: ConnectionManager, messageElement: HTMLDivElement }> {
+    const botMessage = document.createElement('div')
+    botMessage.className = 'koay-chat-message bot'
+
+    // 如果开启了推理模式，添加推理容器
+    if (reasonMode) {
+      const reasonMessageContainer = document.createElement('div')
+      reasonMessageContainer.className = 'reason-message-container'
+      reasonMessageContainer.innerHTML = 'AI正在思考...'
+      botMessage.appendChild(reasonMessageContainer)
+    }
+
+    // 创建内容容器
+    const contentContainer = document.createElement('div')
+    contentContainer.className = 'content-container'
+    botMessage.appendChild(contentContainer)
+
+    // 将消息添加到聊天窗口
+    const messagesContainer = chatWindow.querySelector('.koay-chat-messages')
+    if (!messagesContainer) {
+      throw new Error('消息容器未找到')
+    }
+    messagesContainer.appendChild(botMessage)
+    messagesContainer.scrollTop = messagesContainer.scrollHeight
   
     const connectionManager = new ConnectionManager({
-      onData: (content) => {
+      onData: (msg) => {
         if (botMessage) {
-          botMessage.innerHTML = content
+          // 推理消息存放处
+          if (msg.reasoningContent) {
+            const reasonMessageContainer = botMessage.querySelector('.reason-message-container') || botMessage
+            reasonMessageContainer.innerHTML = msg.reasoningContent
+          }
+        
+          // 普通消息存放处
+          if (msg.content) {
+            const contentContainer = botMessage.querySelector('.content-container') || botMessage
+            contentContainer.innerHTML = msg.content
+          }
+          
           // 获取消息容器并滚动到底部
           const messagesContainer = chatWindow.querySelector('.koay-chat-messages')
           if (messagesContainer) {
@@ -186,8 +218,11 @@ export function createChatWindow() {
       await handleUserMessage(message)
       input.value = ''
 
+      // 获取reasonMode状态
+      const { reasonMode = false } = await chrome.storage.local.get(['reasonMode'])
+
       // 处理机器人消息
-      const { connectionManager: cm } = await handleBotMessage()
+      const { connectionManager: cm } = await handleBotMessage(reasonMode)
       connectionManager = cm
   
       // 确保在组件卸载时断开连接
@@ -196,9 +231,6 @@ export function createChatWindow() {
           connectionManager.disconnect()
         }
       })
-  
-      // 获取reasonMode状态
-      const { reasonMode = false } = await chrome.storage.local.get(['reasonMode'])
       
       // 发送消息到background script
       connectionManager.sendMessage({ 

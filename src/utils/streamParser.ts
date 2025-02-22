@@ -3,7 +3,7 @@
  * @param decodedData 解码后的数据块
  * @returns 解析出的对话内容，如果解析失败或没有内容则返回null
  */
-export function parseStreamData(decodedData: string): string | null {
+export function parseStreamData(decodedData: string): {reasoningContent: String, content: String} | null {
   try {
     // 检查是否为[DONE]标记，提前返回
     if (decodedData.includes('[DONE]')) {
@@ -13,6 +13,7 @@ export function parseStreamData(decodedData: string): string | null {
 
     // 将数据按照'data: '分割成多个块
     const dataBlocks = decodedData.split('data: ').filter(block => block.trim())
+    let combinedReasoningContent = ''
     let combinedContent = ''
 
     // 处理每个数据块
@@ -37,7 +38,7 @@ export function parseStreamData(decodedData: string): string | null {
 
           const reasioningContent = jsonData.choices[0]?.delta?.reasoning_content
           if (reasioningContent) {
-            combinedContent += reasioningContent
+            combinedReasoningContent += reasioningContent
           }
 
           const content = jsonData.choices[0]?.delta?.content
@@ -55,7 +56,10 @@ export function parseStreamData(decodedData: string): string | null {
       }
     }
 
-    return combinedContent || null
+    return {
+      reasoningContent: combinedReasoningContent,
+      content: combinedContent
+    }
   } catch (error) {
     // 记录完整的错误信息
     console.error('解析数据流失败:', {

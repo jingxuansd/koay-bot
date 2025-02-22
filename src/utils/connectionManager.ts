@@ -1,13 +1,20 @@
 import { marked } from 'marked'
 
+// 定义数据接口
+export interface StreamData {
+  reasoningContent: string
+  content: string
+}
+
 interface ConnectionManagerOptions {
-  onData?: (data: string) => void
+  onData?: (data: StreamData) => void
   onError?: (error: string) => void
   onEnd?: () => void
 }
 
 class ConnectionManager {
   private port: chrome.runtime.Port | null = null
+  private fullReasonContent = ''
   private fullContent = ''
   private readonly options: ConnectionManagerOptions
   private reader: ReadableStreamDefaultReader<Uint8Array> | null = null
@@ -16,12 +23,8 @@ class ConnectionManager {
     this.options = options
   }
 
-  connect(reasonMode: boolean = false) {
+  connect() {
     try {
-      if (reasonMode) {
-        this.fullContent = '> '
-      }
-
       // 确保在重新连接前清理旧的连接
       if (this.port) {
         this.disconnect()
@@ -67,15 +70,16 @@ class ConnectionManager {
     })
   }
 
-  private handleStreamData(data: string) {
-    this.fullContent += data
+  private handleStreamData(data: StreamData) {
+    this.fullReasonContent += data.reasoningContent
+    this.fullContent += data.content
     if (this.options.onData) {
       try {
+        const markdownReasonContent = this.fullReasonContent ? marked.parse(this.fullReasonContent) as string : ''
         const markdownContent = marked.parse(this.fullContent) as string
-        this.options.onData(markdownContent)
+        this.options.onData({reasoningContent: markdownReasonContent, content: markdownContent})
       } catch (error) {
         console.error('Markdown渲染失败:', error)
-        this.options.onData(this.fullContent)
       }
     }
   }

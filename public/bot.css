@@ -38,13 +38,16 @@
 }
 
 .koay-chat-window.fullscreen {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
-  border-radius: 10;
+  border-radius: 0;
   margin: 0;
+  z-index: 99999;
 }
 
 .koay-chat-header {
@@ -60,8 +63,8 @@
 }
 
 .koay-avatar {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   margin-right: 8px;
   overflow: hidden;
@@ -137,11 +140,29 @@
 
 .koay-chat-message.user {
   margin-left: auto;
-  background: #4a91e2d1;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
   color: white;
-  padding: 6px 10px;
-  border-radius: 12px 12px 0 12px;
+  padding: 10px 16px;
+  border-radius: 18px 18px 4px 18px;
   text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.2);
+  max-width: 85%;
+  word-wrap: break-word;
+  position: relative;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .koay-chat-message.bot {
@@ -156,7 +177,7 @@
 }
 
 .koay-chat-message.bot pre {
-  background: #2b2b2b3d;
+  background: #282c34;
   border-radius: 6px;
   padding: 12px;
   margin: 8px 0;
@@ -166,7 +187,32 @@
 .koay-chat-message.bot code {
   font-family: 'Fira Code', 'Consolas', monospace;
   font-size: 13px;
-  color: #bdbdbd;
+  color: #abb2bf;
+}
+
+.koay-chat-message.bot .token.comment {
+  color: #7f848e;
+  font-style: italic;
+}
+
+.koay-chat-message.bot .token.keyword {
+  color: #c678dd;
+}
+
+.koay-chat-message.bot .token.string {
+  color: #98c379;
+}
+
+.koay-chat-message.bot .token.function {
+  color: #61afef;
+}
+
+.koay-chat-message.bot .token.number {
+  color: #d19a66;
+}
+
+.koay-chat-message.bot .token.operator {
+  color: #56b6c2;
 }
 
 .koay-chat-message.bot p {
@@ -236,6 +282,19 @@
   padding: 4px;
   background: rgba(0, 0, 0, 0.03);
   border-radius: 4px;
+}
+
+.reason-message-container {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.content-container {
+  margin-bottom: 8px;
 }
 
 .koay-chat-input {

@@ -124,15 +124,17 @@ function initEvents() {
     if (!summaryBtn) return
 
     const target = e.target as Element
-    const isHeading = target.matches('h1, h2, h3, h4, h5, h6')
+    const isHeading = target.matches('h1')
+    const isSummaryBtn = target.matches('koay-summary-btn')
 
     if (isHeading) {
+      summaryBtn.className = 'koay-summary-btn'
       summaryBtn.style.display = 'inline-block'
       summaryBtn.style.position = 'relative'
       summaryBtn.style.left = '8px'
       summaryBtn.style.top = '0'
       target.appendChild(summaryBtn)
-    } else if (summaryBtn.parentElement && !summaryBtn.parentElement.matches('h1, h2, h3, h4, h5, h6')) {
+    } else if (!isSummaryBtn) {
       document.body.appendChild(summaryBtn)
       summaryBtn.style.display = 'none'
       summaryBtn.style.position = 'absolute'
