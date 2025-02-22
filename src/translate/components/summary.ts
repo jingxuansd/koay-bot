@@ -15,8 +15,10 @@ export function createSummaryButton() {
     font-weight: 500;
     z-index: 10000;
     box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     user-select: none;
+    opacity: 0;
+    transform: scale(0.95);
   `
 
   // 添加悬浮效果
@@ -40,43 +42,58 @@ export function createSummaryContainer() {
   container.className = 'koay-summary-container'
   container.style.cssText = `
     position: fixed;
-    top: 20px;
+    top: 80px;
     right: 20px;
     width: 320px;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
-    padding: 16px;
+    padding: 12px;
     background: white;
-    border-radius: 8px;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #333;
+    color: #2c3e50;
     z-index: 10000;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(30px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   `
 
   // 添加滚动条样式
   container.innerHTML = `
     <style>
       .koay-summary-container::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
       }
       .koay-summary-container::-webkit-scrollbar-track {
         background: #f1f1f1;
-        border-radius: 3px;
+        border-radius: 2px;
       }
       .koay-summary-container::-webkit-scrollbar-thumb {
         background: #888;
-        border-radius: 3px;
+        border-radius: 2px;
       }
       .koay-summary-container::-webkit-scrollbar-thumb:hover {
         background: #555;
       }
     </style>
   `
+
+  // 创建内容容器
+  const contentContainer = document.createElement('div')
+  contentContainer.className = 'koay-summary-content'
+  container.appendChild(contentContainer)
+
+  // 监听内容变化，自动滚动到底部
+  const observer = new MutationObserver(() => {
+    container.scrollTop = container.scrollHeight
+  })
+
+  observer.observe(contentContainer, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  })
 
   document.body.appendChild(container)
   return container

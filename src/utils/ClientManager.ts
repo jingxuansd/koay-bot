@@ -6,6 +6,13 @@ export interface StreamData {
   content: string
 }
 
+// 定义消息
+export interface Request {
+  type: 'CHAT' | 'TRANSLATE' | 'SUMMARY'
+  data: string
+  reasonMode: boolean
+}
+
 interface ConnectionManagerOptions {
   onData?: (data: StreamData) => void
   onError?: (error: string) => void
@@ -127,11 +134,11 @@ class ConnectionManager {
     this.fullContent = ''
   }
 
-  sendMessage(message: unknown) {
+  send(req: Request) {
     if (!this.port) {
       throw new Error('未建立连接')
     }
-    this.port.postMessage(message)
+    this.port.postMessage(req)
   }
 }
 

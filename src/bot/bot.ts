@@ -1,5 +1,5 @@
 import { marked } from 'marked'
-import ConnectionManager from '../utils/connectionManager'
+import ConnectionManager from '../utils/ClientManager'
 import { isMessageTooBig, saveMessage } from '../utils/storage'
 
 // 定义消息接口
@@ -233,10 +233,10 @@ export function createChatWindow() {
       })
       
       // 发送消息到background script
-      connectionManager.sendMessage({ 
-        type: 'CHAT_MESSAGE', 
-        message,
-        reasonMode
+      connectionManager.send({ 
+        type: 'CHAT', 
+        data: message,
+        reasonMode: reasonMode
       })
     } catch (error) {
       console.error('发送消息失败:', error)

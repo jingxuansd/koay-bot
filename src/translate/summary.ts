@@ -1,5 +1,5 @@
-import { marked } from 'marked'
 import { createSummaryButton, createSummaryContainer } from './components/summary'
+import ConnectionManager from '../utils/ClientManager'
 
 // 声明全局变量
 let summaryBtn: HTMLDivElement | null = null
@@ -58,44 +58,44 @@ async function handleSummary() {
 
   // 显示总结容器
   summaryContainer.style.display = 'block'
-  summaryContainer.innerHTML = '正在生成总结...'
+  const contentContainer = summaryContainer.querySelector('.koay-summary-content')
+  if (contentContainer) {
+    contentContainer.innerHTML = '正在生成总结...'
+  }
   setTimeout(() => {
     if (summaryContainer) {
       summaryContainer.style.opacity = '1'
       summaryContainer.style.transform = 'translateX(0)'
+      summaryContainer.style.zIndex = '1000'
     }
   }, 0)
 
-  const port = chrome.runtime.connect({ name: 'chat' })
-  let summaryText = ''
-
-  try {
-    await new Promise((resolve, reject) => {
-      port.onMessage.addListener(function listener(msg) {
-        if (msg.type === 'STREAM_DATA') {
-          summaryText += msg.data
-          if (summaryContainer) {
-            summaryContainer.innerHTML = marked.parse(summaryText) as string
-          }
-        } else if (msg.type === 'STREAM_END') {
-          port.onMessage.removeListener(listener)
-          resolve(undefined)
-        } else if (msg.type === 'STREAM_ERROR') {
-          port.onMessage.removeListener(listener)
-          reject(new Error(msg.error))
+  const connectionManager = new ConnectionManager({
+    onData: (data) => {
+      if (summaryContainer) {
+        const contentContainer = summaryContainer.querySelector('.koay-summary-content')
+        if (contentContainer) {
+          contentContainer.innerHTML = data.content
         }
-      })
+      }
+    },
+    onError(error) {
+      showError('生成总结失败，请重试' + error)
+    },
+    onEnd() {
+      if (connectionManager) {
+        connectionManager.disconnect()
+      }
+    }
+  })
 
-      port.postMessage({
-        type: 'CHAT_MESSAGE',
-        message: `请总结以下文章内容，使用中文回复：\n${content}`
-      })
-    })
-  } catch (error) {
-    showError('生成总结失败，请重试')
-  } finally {
-    port.disconnect()
-  }
+  connectionManager.connect()
+
+  connectionManager.send({
+    type: 'SUMMARY',
+    data: `请总结以下文章内容，使用中文回复：\n${content}`,
+    reasonMode: false
+  })
 }
 
 // 显示错误信息
@@ -125,7 +125,6 @@ function initEvents() {
 
     const target = e.target as Element
     const isHeading = target.matches('h1')
-    const isSummaryBtn = target.matches('koay-summary-btn')
 
     if (isHeading) {
       summaryBtn.className = 'koay-summary-btn'
@@ -133,11 +132,9 @@ function initEvents() {
       summaryBtn.style.position = 'relative'
       summaryBtn.style.left = '8px'
       summaryBtn.style.top = '0'
+      summaryBtn.style.opacity = '1'
+      summaryBtn.style.transform = 'scale(1)'
       target.appendChild(summaryBtn)
-    } else if (!isSummaryBtn) {
-      document.body.appendChild(summaryBtn)
-      summaryBtn.style.display = 'none'
-      summaryBtn.style.position = 'absolute'
     }
   })
 
@@ -157,6 +154,16 @@ function initEvents() {
       setTimeout(() => {
         if (summaryContainer) {
           summaryContainer.style.display = 'none'
+        }
+      }, 300)
+    }
+
+    if (!summaryBtn.contains(e.target as Node)) {
+      summaryBtn.style.opacity = '0'
+      summaryBtn.style.transform = 'scale(0.95)'
+      setTimeout(() => {
+        if (summaryBtn) {
+          summaryBtn.style.display = 'none'
         }
       }, 300)
     }
