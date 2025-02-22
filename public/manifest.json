@@ -28,7 +28,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["bot.css", "config.css", "popup.css"],
+      "css": ["bot.css", "config.css", "popup.css", "summary.css"],
       "type": "module"
     }
   ],

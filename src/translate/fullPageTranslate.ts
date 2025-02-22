@@ -40,25 +40,26 @@ async function translateParagraph(paragraph: HTMLElement, port: chrome.runtime.P
 
       port.onMessage.addListener(function listener(msg) {
         if (msg.type === 'STREAM_DATA') {
-          translatedText += msg.data
+          translatedText += msg.data.content
           container.innerHTML = marked.parse(translatedText) as string
         } else if (msg.type === 'STREAM_END') {
           port.onMessage.removeListener(listener)
           resolve()
         } else if (msg.type === 'STREAM_ERROR') {
-          container.textContent = '翻译失败：' + msg.error
+          container.innerHTML = '翻译失败：' + msg.error
           port.onMessage.removeListener(listener)
           reject(new Error(msg.error))
         }
       })
 
       port.postMessage({
-        type: 'CHAT_MESSAGE',
-        message: `请将以下文本翻译成中文：\n${text}`
+        type: 'CHAT',
+        data: `请将以下文本翻译成中文：\n${text}`,
+        reasonMode: false
       })
     })
   } catch (error) {
-    container.textContent = '翻译失败，请重试'
+    container.innerHTML = '翻译失败，请重试'
     throw error
   }
 }

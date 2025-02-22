@@ -1,5 +1,5 @@
-import { createTranslateButton, createTranslateResult } from './components'
-import { marked } from 'marked'
+import { createTranslateButton, createTranslateResult } from './components/translate'
+import ConnectionManager from '../utils/ClientManager'
 
 // 声明全局变量
 let translateBtn: HTMLDivElement | null = null
@@ -40,15 +40,27 @@ async function handleTranslate(selectedText: string, rect: DOMRect) {
       translateBtn.style.display = 'none';
     }
 
-    chrome.runtime.sendMessage({ type: 'TRANSLATE_REQUEST', message: `请将以下文本翻译成中文：\n${selectedText}` }, async (response) => {
-      console.log('Response from background:', response);
-      if (translateResult) {
-        // 使用marked库渲染Markdown
-        const markedText = await marked.parse(response.data);
-        translateResult.innerHTML = markedText;
+    const connectionManager = new ConnectionManager({
+      onData(data) {
+        if (translateResult) {
+          translateResult.innerHTML = data.content;
+        }
+      },
+      onError(error) {
+        if (translateResult) {
+          translateResult.innerHTML = `<div style="color: #ff4d4f;">${error}</div>`
+        }
+      },
+      onEnd() {
+        if (connectionManager) {
+          connectionManager.disconnect()
+        }
       }
-    });
-    
+    })
+
+    connectionManager.connect()
+
+    connectionManager.send({ type: 'TRANSLATE', data: `请将以下文本翻译成中文：\n${selectedText}`, reasonMode: false })
   } catch (error) {
     console.error('翻译失败:', error)
     if (translateResult) {
