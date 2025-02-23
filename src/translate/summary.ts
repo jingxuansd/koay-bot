@@ -1,8 +1,8 @@
 import { createSummaryButton, createSummaryContainer } from './components/summary'
-import ConnectionManager from '../utils/ClientManager'
+import ConnectionManager from '../utils/connectionManager'
 
 // 声明全局变量
-let summaryBtn: HTMLDivElement | null = null
+let summaryBtn: HTMLButtonElement | null = null
 let summaryContainer: HTMLDivElement | null = null
 
 // 初始化组件

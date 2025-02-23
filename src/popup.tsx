@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import './App.css'
+import '../public/popup.css'
 
 interface Config {
   model: 'deepseek-r1' | 'chatgpt'
