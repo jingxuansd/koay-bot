@@ -28,7 +28,7 @@ const Options = () => {
       margin: '0 auto',
       padding: '20px'
     }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Koay Bot 设置</h1>
+      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Koay 设置</h1>
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '10px' }}>选择语言模型：</label>
         <select

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Koay Bot",
+  "name": "Koay",
   "version": "1.0.0",
   "description": "A Chrome extension with an interactive AI assistant",
   "permissions": [

@@ -1,4 +1,4 @@
-# Koay Bot
+# Koay
 
 [中文文档](./README_zh.md)
 
@@ -47,7 +47,7 @@ npm run build
 
 ## Usage
 
-1. Click the Koay Bot icon in your Chrome toolbar
+1. Click the Koay icon in your Chrome toolbar
 2. Configure your settings:
    - Select your preferred AI model (DeepSeek-R1 or ChatGPT)
    - Enter your API key
