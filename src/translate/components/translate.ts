@@ -1,30 +1,34 @@
 // 创建翻译按钮
 export function createTranslateButton() {
-  const button = document.createElement('div')
+  const button = document.createElement('button')
   button.className = 'koay-translate-btn'
   button.innerHTML = '翻译'
   button.style.cssText = `
     position: absolute;
     display: none;
-    padding: 6px 12px;
+    padding: 8px 16px;
     background: linear-gradient(135deg, #4a90e2, #357abd);
     color: white;
-    border-radius: 6px;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     z-index: 10000;
     box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
+    outline: none;
   `
   button.addEventListener('mouseover', () => {
-    button.style.transform = 'translateY(-1px)';
-    button.style.boxShadow = '0 4px 12px rgba(74, 144, 226, 0.4)';
+    button.style.transform = 'translateY(-2px)';
+    button.style.boxShadow = '0 6px 16px rgba(74, 144, 226, 0.4)';
+    button.style.background = 'linear-gradient(135deg, #5a9ee8, #4084d0)';
   })
   button.addEventListener('mouseout', () => {
     button.style.transform = 'translateY(0)';
     button.style.boxShadow = '0 2px 8px rgba(74, 144, 226, 0.3)';
+    button.style.background = 'linear-gradient(135deg, #4a90e2, #357abd)';
   })
   document.body.appendChild(button)
   return button

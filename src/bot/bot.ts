@@ -1,5 +1,5 @@
 import { marked } from 'marked'
-import ConnectionManager from '../utils/ClientManager'
+import ConnectionManager from '../utils/connectionManager'
 import { isMessageTooBig, saveMessage } from '../utils/storage'
 
 // 定义消息接口

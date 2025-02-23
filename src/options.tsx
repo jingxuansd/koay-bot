@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import './index.css'
+import '../public/popup.css'
 
 const Options = () => {
   const [model, setModel] = useState('deepseek-r1')
@@ -23,57 +23,30 @@ const Options = () => {
   }
 
   return (
-    <div className="options-container" style={{
-      maxWidth: '600px',
-      margin: '0 auto',
-      padding: '20px'
-    }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Koay 设置</h1>
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', marginBottom: '10px' }}>选择语言模型：</label>
-        <select
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '8px',
-            borderRadius: '4px',
-            border: '1px solid #ddd'
-          }}
-        >
-          <option value="deepseek-r1">DeepSeek-R1</option>
-          <option value="chatgpt">ChatGPT</option>
-        </select>
-      </div>
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', marginBottom: '10px' }}>API密钥：</label>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '8px',
-            borderRadius: '4px',
-            border: '1px solid #ddd'
-          }}
-          placeholder="请输入API密钥"
-        />
-      </div>
-      <button
-        onClick={handleSave}
-        style={{
-          width: '100%',
-          padding: '10px',
-          backgroundColor: '#4a90e2',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        保存
-      </button>
+    <div className="popup-container">
+      <h1>Koay 设置</h1>
+      <form>
+        <div className="form-group">
+          <label>选择语言模型：</label>
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+          >
+            <option value="deepseek-r1">DeepSeek-R1</option>
+            <option value="chatgpt">ChatGPT</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>API密钥：</label>
+          <input
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="请输入API密钥"
+          />
+        </div>
+        <button type="button" onClick={handleSave}>保存</button>
+      </form>
     </div>
   )
 }

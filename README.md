@@ -20,6 +20,8 @@ A Chrome extension with an interactive AI assistant that supports multiple langu
   - Advanced Filtering: Refine search results with precision
 - 📝 Document Intelligence:
   - Document Summarization: Get concise summaries of long documents
+    ![Summary Feature](./docs/summary.png)
+    The summary feature provides a quick way to get the main points of any article. When hovering over article titles, a "Summary" button appears, which generates a concise summary of the content in a clean, floating panel.
   - Key Points Extraction: Automatically identify and highlight important information
 
 ## Installation
