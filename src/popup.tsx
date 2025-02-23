@@ -37,7 +37,7 @@ function App() {
 
   return (
     <div className="popup-container">
-      <h1>Koay Bot 配置</h1>
+      <h1>Koay 配置</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>选择语言模型：</label>

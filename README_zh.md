@@ -1,4 +1,4 @@
-# Koay Bot
+# Koay
 
 [English](./README.md)
 
@@ -47,7 +47,7 @@ npm run build
 
 ## 使用指南
 
-1. 点击Chrome工具栏中的Koay Bot图标
+1. 点击Chrome工具栏中的Koay图标
 2. 配置设置：
    - 选择你偏好的AI模型（DeepSeek-R1或ChatGPT）
    - 输入你的API密钥
