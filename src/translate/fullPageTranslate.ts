@@ -22,8 +22,20 @@ function getAllParagraphs(): HTMLElement[] {
   const paragraphs = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li')
   return Array.from(paragraphs).filter(p => {
     const text = (p as HTMLElement).textContent?.trim()
-    return text && text.length > 0
+    return (text && text.length > 0) && !isElementInUnwantedArea(p)
   }) as HTMLElement[]
+}
+
+// 判断元素是否在不需要的区域
+function isElementInUnwantedArea(element: Element): boolean {
+  const unwantedSelectors = [
+    'nav', 'footer', 'header', '.navigation', '.footer',
+    '.sidebar', '.menu', '.ad', '.advertisement'
+  ]
+
+  return unwantedSelectors.some(selector =>
+    element.closest(selector) !== null
+  )
 }
 
 // 处理单个段落的翻译

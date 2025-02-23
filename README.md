@@ -11,10 +11,17 @@ A Chrome extension with an interactive AI assistant that supports multiple langu
 - 🎨 Clean and intuitive user interface
 - ⚡ Fast and responsive interactions
 - 🌐 Works on any website
+- 💬 Interactive Chat:
+  - Real-time AI Chat: Engage in natural conversations with AI models
+  - Reasoning Mode: Get detailed explanations of AI's thought process
+  ![Chat Feature](./docs/chat.png)
+  The chat interface provides a seamless way to interact with AI models. Toggle the "Reason" mode to see the AI's step-by-step reasoning process.
 - 🔄 Smart Translation Features:
   - Quick Translation: Select text and instantly get translations
   - Full Page Translation: Translate entire documents with one click
   - Multi-language Support: Works with various language pairs
+  ![Full Page Translation](./docs/fullPageTranslage.png)
+  The full page translation feature allows you to translate entire web pages with a single click. Right-click anywhere on the page and select "Translate Full Page" to get instant translations of all content.
 - 🔍 Advanced Search Capabilities:
   - Deep Search: Quickly find content with keywords
   - Advanced Filtering: Refine search results with precision
