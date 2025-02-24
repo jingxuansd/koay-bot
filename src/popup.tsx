@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import ReactDOM from 'react-dom/client'
 import '../public/popup.css'
 
 interface Config {
@@ -6,7 +7,7 @@ interface Config {
   apiKey: string
 }
 
-function App() {
+const Popup = () => {
   const [config, setConfig] = useState<Config>({
     model: 'deepseek-r1',
     apiKey: ''
@@ -65,4 +66,8 @@ function App() {
   )
 }
 
-export default App
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <Popup />
+  </React.StrictMode>
+)

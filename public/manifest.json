@@ -12,7 +12,7 @@
     "<all_urls>"
   ],
   "action": {
-    "default_popup": "options.html",
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -28,7 +28,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["bot.css", "config.css", "popup.css", "summary.css"],
+      "css": ["bot.css", "summary.css"],
       "type": "module"
     }
   ],

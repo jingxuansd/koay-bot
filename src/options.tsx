@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import '../public/popup.css'
+import '../public/options.css'
 
 const Options = () => {
   const [model, setModel] = useState('deepseek-r1')
