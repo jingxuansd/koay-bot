@@ -30,6 +30,7 @@
 
 .form-group input[type="password"] {
   font-family: monospace;
+  box-sizing: border-box;
 }
 
 button[type="submit"] {
