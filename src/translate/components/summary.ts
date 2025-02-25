@@ -16,6 +16,7 @@ export function createSummaryButton() {
     font-weight: 500;
     z-index: 10000;
     box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    box-sizing: border-box;
     transition: all 0.3s ease;
     user-select: none;
     opacity: 0;

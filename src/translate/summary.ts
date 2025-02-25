@@ -23,7 +23,7 @@ function getMainContent(): string {
 
   elements.forEach(element => {
     // 过滤掉导航栏、页脚等区域的内容
-    if (!isElementInUnwantedArea(element)) {
+    if (!isElementInUnwantedArea(element) && isElementVisible(element)) {
       const text = element.textContent?.trim()
       if (text) {
         content.push(text)
@@ -38,12 +38,22 @@ function getMainContent(): string {
 function isElementInUnwantedArea(element: Element): boolean {
   const unwantedSelectors = [
     'nav', 'footer', 'header', '.navigation', '.footer',
-    '.sidebar', '.menu', '.ad', '.advertisement'
+    '.sidebar', '.menu', '.ad', '.advertisement',
+    '.social-share', '.comments', '.related-posts', '.recommended',
+    '.copyright', '.search-box', '.login-form', '.signup-form',
+    '.author-info', '.meta-info', '.tags', '.categories',
+    '.newsletter', '.subscription', '.popup', '.modal'
   ]
 
   return unwantedSelectors.some(selector =>
     element.closest(selector) !== null
   )
+}
+
+// 过滤掉隐藏的元素
+function isElementVisible(element: Element): boolean {
+  const style = window.getComputedStyle(element)
+  return !(style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0')
 }
 
 // 处理总结请求
