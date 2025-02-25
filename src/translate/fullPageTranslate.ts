@@ -19,7 +19,9 @@ function createTranslateContainer(paragraph: HTMLElement): HTMLDivElement {
 
 // 获取页面所有段落
 function getAllParagraphs(): HTMLElement[] {
-  const paragraphs = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li')
+  const paragraphs = document.querySelectorAll(
+    'main p, main h1, main h2, main h3, main h4, main h5, main h6, .main-content p, .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6, article p, article h1, article h2'
+  )
   return Array.from(paragraphs).filter(p => {
     const text = (p as HTMLElement).textContent?.trim()
     return (text && text.length > 0) && !isElementInUnwantedArea(p)
