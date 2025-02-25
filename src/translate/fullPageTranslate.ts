@@ -30,7 +30,7 @@ function getAllParagraphs(): HTMLElement[] {
 function isElementInUnwantedArea(element: Element): boolean {
   const unwantedSelectors = [
     'nav', 'footer', 'header', '.navigation', '.footer',
-    '.sidebar', '.menu', '.ad', '.advertisement'
+    '.sidebar', '.menu', '.ad', '.advertisement', '.speechify-ignore'
   ]
 
   return unwantedSelectors.some(selector =>
