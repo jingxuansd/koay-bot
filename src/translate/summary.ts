@@ -18,7 +18,10 @@ function initializeComponents() {
 // 获取页面主要内容
 function getMainContent(): string {
   // 获取所有段落和标题
-  const elements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6')
+  const elements = document.querySelectorAll(
+    'main p, main h1, main h2, main h3, main h4, main h5, main h6, .main-content p, .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6, article p, article h1, article h2'
+  )  
+  
   const content: string[] = []
 
   elements.forEach(element => {
