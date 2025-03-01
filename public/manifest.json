@@ -28,7 +28,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["bot.css", "summary.css"],
+      "css": ["bot.css", "summary.css", "writer.css"],
       "type": "module"
     }
   ],
@@ -36,5 +36,9 @@
     "service_worker": "background.js",
     "type": "module"
   },
+  "web_accessible_resources": [{
+    "resources": ["icons/*"],
+    "matches": ["<all_urls>"]
+  }],
   "options_page": "options.html"
 }

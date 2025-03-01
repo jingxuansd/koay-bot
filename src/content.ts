@@ -2,6 +2,7 @@ import { initializeTranslateEvents } from './translate/translate'
 import { initializeFullPageTranslate } from './translate/fullPageTranslate'
 import { initializeSummary } from './translate/summary'
 import { createBot } from './bot/bot'
+import { initializeWriter } from './writer/writer'
 import '../public/summary.css'
 
 // 初始化聊天机器人
@@ -15,3 +16,6 @@ initializeFullPageTranslate()
 
 // 初始化总结功能
 initializeSummary()
+
+// 初始化写作助手
+initializeWriter()

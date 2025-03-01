@@ -5,19 +5,22 @@ import '../public/options.css'
 const Options = () => {
   const [model, setModel] = useState('deepseek-r1')
   const [apiKey, setApiKey] = useState('')
+  const [writerEnabled, setWriterEnabled] = useState(false)
 
   useEffect(() => {
     // 加载已保存的配置
-    chrome.storage.local.get(['model', 'apiKey']).then((config) => {
+    chrome.storage.local.get(['model', 'apiKey', 'writerEnabled']).then((config) => {
       if (config.model) setModel(config.model)
       if (config.apiKey) setApiKey(config.apiKey)
+      if (config.writerEnabled !== undefined) setWriterEnabled(config.writerEnabled)
     })
   }, [])
 
   const handleSave = async () => {
     await chrome.storage.local.set({
       model,
-      apiKey
+      apiKey,
+      writerEnabled
     })
     alert('保存成功！')
   }
@@ -44,6 +47,16 @@ const Options = () => {
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="请输入API密钥"
           />
+        </div>
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={writerEnabled}
+              onChange={(e) => setWriterEnabled(e.target.checked)}
+            />
+            启用写作助手
+          </label>
         </div>
         <button type="button" onClick={handleSave}>保存</button>
       </form>
