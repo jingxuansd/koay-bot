@@ -1,6 +1,6 @@
 import { marked } from 'marked'
-import ConnectionManager from '../utils/connectionManager'
-import { isMessageTooBig, saveMessage } from '../utils/storage'
+import ConnectionManager from '../client/connectionManager'
+import { isMessageTooBig, saveMessage } from '../storage/storage'
 
 // 定义消息接口
 interface Message {

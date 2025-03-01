@@ -8,7 +8,7 @@ export interface StreamData {
 
 // 定义消息
 export interface Request {
-  type: 'CHAT' | 'TRANSLATE' | 'SUMMARY'
+  type: 'CHAT' | 'TRANSLATE' | 'SUMMARY' | 'OPTIMIZE_TEXT'
   data: string
   reasonMode: boolean
 }
@@ -42,7 +42,7 @@ class ConnectionManager {
         throw new Error('Chrome runtime 未就绪')
       }
 
-      this.port = chrome.runtime.connect({ name: 'chat' });
+      this.port = chrome.runtime.connect({ name: 'koay' });
       
       // 检查连接是否成功创建
       if (!this.port) {

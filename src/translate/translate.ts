@@ -1,5 +1,5 @@
 import { createTranslateButton, createTranslateResult } from './components/translate'
-import ConnectionManager from '../utils/connectionManager'
+import ConnectionManager from '../client/connectionManager'
 
 // 声明全局变量
 let translateBtn: HTMLButtonElement | null = null

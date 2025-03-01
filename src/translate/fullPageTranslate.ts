@@ -101,7 +101,7 @@ function initTranslateListener() {
 // 处理全文翻译
 async function handleFullPageTranslate() {
   const paragraphs = getAllParagraphs()
-  const port = chrome.runtime.connect({ name: 'chat' })
+  const port = chrome.runtime.connect({ name: 'koay' })
 
   try {
     for (const paragraph of paragraphs) {

@@ -1,5 +1,7 @@
 import '../../../public/writer.css'
-
+import { OptimizeDialog } from './OptimizeDialog'
+import ConnectionManager from '../../client/connectionManager'
+import { getOptimizePrompt } from '../../prompts/optimizePrompt'
 interface Position {
   top: number
   left: number
@@ -99,10 +101,66 @@ export class WriterToolbarNative {
 
   private handleButtonClick(event: MouseEvent, buttonId: string) {
     event.stopPropagation()
-    if (buttonId === 'koay-writer-continue') {
+    if (buttonId === 'koay-writer-optimize') {
+      const selection = window.getSelection()
+      if (!selection) return
+      
+      const selectedText = selection.toString().trim()
+      if (!selectedText) return
+
+      const dialog = new OptimizeDialog({
+        originalText: selectedText,
+        optimizedText: '优化中...',
+        onReplace: () => {
+          const range = selection.getRangeAt(0)
+          range.deleteContents()
+          range.insertNode(document.createTextNode(dialog.getOptimizedText()))
+          this.destroy()
+        },
+        onInsert: () => {
+          const range = selection.getRangeAt(0)
+          const endRange = range.cloneRange()
+          endRange.collapse(false)
+          endRange.insertNode(document.createTextNode(dialog.getOptimizedText()))
+          this.destroy()
+        },
+        onClose: () => {
+          this.destroy()
+        }
+      })
+      
+      // 先挂载对话框
+      dialog.mount()
+      console.log('WriterToolbarNative: 对话框已挂载')
+      
+      // 然后初始化连接管理器
+      const connectionManager = new ConnectionManager(
+        {
+          onData: (data) => {
+            console.log('WriterToolbarNative: 收到数据，准备更新对话框', data)
+            dialog.updateOptimizedText(data.content)
+          },
+          onError: (error) => {
+            console.error('WriterToolbarNative: 收到错误', error)
+          },
+          onEnd: () => {
+            console.log('WriterToolbarNative: 数据流结束')
+          }
+        }
+      )
+      
+      // 最后建立连接并发送请求
+      console.log('WriterToolbarNative: 准备建立连接')
+      connectionManager.connect()
+      
+      console.log('WriterToolbarNative: 准备发送优化请求')
+      connectionManager.send({
+        type: 'OPTIMIZE_TEXT',
+        data: getOptimizePrompt(selectedText),
+        reasonMode: false
+      })
+    } else if (buttonId === 'koay-writer-continue') {
       console.log('续写功能被点击')
-    } else if (buttonId === 'koay-writer-collaborate') {
-      console.log('分类协作功能被点击')
     } else if (buttonId === 'koay-writer-settings') {
       chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
       this.destroy()

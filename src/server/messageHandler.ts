@@ -1,6 +1,6 @@
 import { openai } from '../api/openai'
 import { deepseek } from '../api/deepseek'
-import { handleStreamData } from '../utils/streamHandler'
+import { handleStreamData } from './streamHandler'
 
 
 type ModelType = 'deepseek-r1' | 'chatgpt'
