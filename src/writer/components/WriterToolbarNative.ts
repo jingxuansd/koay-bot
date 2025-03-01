@@ -22,6 +22,7 @@ export class WriterToolbarNative {
     this.container.style.left = `${this.position.left}px`
     this.container.style.opacity = '1'
     this.container.style.transform = 'translateX(0)'
+    this.container.style.pointerEvents = 'none' // 临时禁用点击事件
 
     const buttonsContainer = document.createElement('div')
     buttonsContainer.className = 'koay-writer-buttons'
@@ -58,11 +59,26 @@ export class WriterToolbarNative {
     console.log('更多选项按钮已创建:', moreOptionsButton)
 
     buttonsContainer.appendChild(moreOptionsButton)
+
+    // 创建配置按钮
+    const settingsButton = this.createButton('', 'koay-writer-settings')
+    const settingsIcon = document.createElement('img')
+    settingsIcon.src = chrome.runtime.getURL('icons/settings.png')
+    settingsButton.title = '配置'
+    settingsButton.appendChild(settingsIcon)
+    settingsButton.insertBefore(settingsIcon, settingsButton.firstChild)
+    console.log('配置按钮已创建:', settingsButton)
+
+    buttonsContainer.appendChild(settingsButton)
     this.container.appendChild(buttonsContainer)
     console.log('工具栏已创建完成，准备挂载到DOM')
 
     // 添加事件监听
-    document.addEventListener('click', this.handleClickOutside)
+    // 使用setTimeout延迟添加点击事件监听器，避免与创建时的mouseup事件冲突
+    setTimeout(() => {
+      this.container.style.pointerEvents = 'auto' // 恢复点击事件
+      document.addEventListener('click', this.handleClickOutside)
+    }, 100)
   }
 
   private createButton(text: string, id: string): HTMLButtonElement {
@@ -87,6 +103,9 @@ export class WriterToolbarNative {
       console.log('续写功能被点击')
     } else if (buttonId === 'koay-writer-collaborate') {
       console.log('分类协作功能被点击')
+    } else if (buttonId === 'koay-writer-settings') {
+      chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
+      this.destroy()
     }
   }
 
@@ -128,10 +147,16 @@ export class WriterToolbarNative {
   }
 
   public destroy() {
+    console.log('开始销毁工具栏');
     document.removeEventListener('click', this.handleClickOutside)
+    console.log('已移除点击事件监听器');
     if (this.container.parentNode) {
       this.container.parentNode.removeChild(this.container)
+      console.log('已从DOM中移除工具栏元素');
+    } else {
+      console.log('工具栏元素已不在DOM中');
     }
+    console.log('工具栏销毁完成');
   }
 }
 
