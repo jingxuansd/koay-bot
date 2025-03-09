@@ -15,34 +15,65 @@ const MESSAGES_PER_PAGE = 20
 
 // 创建机器人图标
 export function createBot() {
-  const botIcon = document.createElement('div')
-  botIcon.className = 'koay-bot-icon'
-  botIcon.innerHTML = 'K'
-  document.body.appendChild(botIcon)
+  const container = document.createElement('div');
+  const shadow = container.attachShadow({ mode: 'open' });
 
+  // 创建 link 元素加载 .css 文件
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = chrome.runtime.getURL('bot.css');
+  shadow.appendChild(link);
+
+  // 创建机器人图标
+  const botIcon = document.createElement('div');
+  botIcon.classList.add('koay-bot-icon');
+  // 先将图标隐藏
+  botIcon.style.display = 'none';
+  // 添加内联样式确保初始位置正确
+  const botImage = document.createElement('img');
+  botImage.src = chrome.runtime.getURL('icons/bot.png');
+  botIcon.appendChild(botImage);
+
+  // 组装DOM结构
+  shadow.appendChild(botIcon);
+  document.body.appendChild(container);
+
+  // 监听CSS文件加载完成事件
+  link.addEventListener('load', () => {
+    botIcon.style.display = 'flex';
+  });
   // 添加点击事件
-  botIcon.addEventListener('click', () => {
-    const chatWindow = document.querySelector('.koay-chat-window')
+  botIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const chatWindow = shadow.querySelector('.koay-chat-window');
     if (chatWindow) {
-      chatWindow.classList.toggle('koay-chat-window-hidden')
+      chatWindow.classList.toggle('koay-chat-window-hidden');
     } else {
-      createChatWindow()
+      createChatWindow();
     }
-  })
+  });
 }
 
 // 创建聊天窗口
 export function createChatWindow() {
+  const container = document.createElement('div');
+  const shadow = container.attachShadow({ mode: 'open' });
+
+  // 创建 link 元素加载 .css 文件
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = chrome.runtime.getURL('bot.css');
+
   chatWindow = document.createElement('div')
-  chatWindow.className = 'koay-chat-window'
+  chatWindow.classList.add('koay-chat-window')
 
   // 创建标题栏
   const header = document.createElement('div')
-  header.className = 'koay-chat-header'
+  header.classList.add('koay-chat-header')
 
   // 创建头像
   const avatar = document.createElement('img')
-  avatar.src = 'https://cdn-icons-png.flaticon.com/512/6596/6596121.png'
+  avatar.src = chrome.runtime.getURL('icons/bot.png')
   avatar.className = 'koay-avatar'
 
   header.appendChild(avatar)
@@ -54,11 +85,15 @@ export function createChatWindow() {
   // 创建全屏按钮
   const fullscreenBtn = document.createElement('button')
   fullscreenBtn.className = 'koay-fullscreen-btn'
-  fullscreenBtn.textContent = '⛶'
+  const fullscreenIcon = document.createElement('img')
+  fullscreenIcon.src = chrome.runtime.getURL('icons/dark/expand-small-to-big.png')
+  fullscreenIcon.style.width = '16px'
+  fullscreenIcon.style.height = '16px'
+  fullscreenBtn.appendChild(fullscreenIcon)
 
   fullscreenBtn.addEventListener('click', () => {
     chatWindow.classList.toggle('fullscreen')
-    fullscreenBtn.textContent = chatWindow.classList.contains('fullscreen') ? '⛶' : '⛶'
+    fullscreenIcon.style.transform = chatWindow.classList.contains('fullscreen') ? 'rotate(180deg)' : 'rotate(0deg)'
   })
 
   optionsContainer.appendChild(fullscreenBtn)
@@ -66,7 +101,11 @@ export function createChatWindow() {
   // 创建设置按钮
   const settingsBtn = document.createElement('button')
   settingsBtn.className = 'koay-settings-btn'
-  settingsBtn.innerHTML = '⚙️'
+  const settingsIcon = document.createElement('img')
+  settingsIcon.src = chrome.runtime.getURL('icons/dark/settings.png')
+  settingsIcon.style.width = '16px'
+  settingsIcon.style.height = '16px'
+  settingsBtn.appendChild(settingsIcon)
 
   // 添加设置按钮点击事件
   settingsBtn.addEventListener('click', () => {
@@ -249,21 +288,26 @@ export function createChatWindow() {
   }
 
   // 重新组织DOM结构
+  shadow.appendChild(link)
   inputContainer.appendChild(input)
   inputContainer.appendChild(actionContainer)
   actionContainer.appendChild(reasonContainer)
   reasonContainer.appendChild(reasonLabel)
   chatWindow.appendChild(inputContainer)
-  document.body.appendChild(chatWindow)
+  shadow.appendChild(chatWindow)
+  document.body.appendChild(container)
 
   // 添加点击事件监听器，点击页面其他区域时收起聊天窗口
   document.addEventListener('click', (e) => {
-    const botIcon = document.querySelector('.koay-bot-icon')
-    if (!chatWindow.contains(e.target as Node) && 
-        !chatWindow.classList.contains('koay-chat-window-hidden') && 
-        !botIcon?.contains(e.target as Node)) {
-      chatWindow.classList.add('koay-chat-window-hidden')
-    }
+    // 添加延时处理，避免事件冲突
+    setTimeout(() => {
+      const botIcon = document.querySelector('.koay-bot-icon')
+      if (!chatWindow.contains(e.target as Node) && 
+          !chatWindow.classList.contains('koay-chat-window-hidden') && 
+          !botIcon?.contains(e.target as Node)) {
+        chatWindow.classList.add('koay-chat-window-hidden')
+      }
+    }, 50) // 50ms的延时，足够避免大多数事件冲突
   })
 
   // 阻止聊天窗口内的点击事件冒泡
@@ -282,7 +326,7 @@ export async function addMessage(type: 'user' | 'bot', content: string, saveToSt
   try {
     const messagesContainer = chatWindow.querySelector('.koay-chat-messages') as HTMLDivElement
     const messageElement = document.createElement('div')
-    messageElement.className = `koay-chat-message ${type}`
+    messageElement.classList.add('koay-chat-message', type)
     
     // 如果是机器人消息，使用marked渲染Markdown
     if (type === 'bot') {

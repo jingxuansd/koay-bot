@@ -8,7 +8,7 @@ export interface StreamData {
 
 // 定义消息
 export interface Request {
-  type: 'CHAT' | 'TRANSLATE' | 'SUMMARY' | 'OPTIMIZE_TEXT'
+  type: 'CHAT' | 'TRANSLATE' | 'SUMMARY' | 'OPTIMIZE_TEXT' | 'CONTINUE_TEXT'
   data: string
   reasonMode: boolean
 }

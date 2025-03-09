@@ -5,8 +5,8 @@ import { handleStreamData } from './streamHandler'
 
 type ModelType = 'deepseek-r1' | 'chatgpt'
 
-// 处理聊天消息
-export async function handleChatMessage(message: string, reasonMode: boolean = false, port: chrome.runtime.Port) {
+// 处理消息
+async function handleMessageMode(message: string, reasonMode: boolean = false, port: chrome.runtime.Port) {
   // 从storage获取配置
   const { model, apiKey } = await chrome.storage.local.get(['model', 'apiKey'])
   
@@ -45,4 +45,23 @@ export async function handleChatMessage(message: string, reasonMode: boolean = f
     default:
       throw new Error('不支持的语言模型')
   }
+}
+
+export async function handleMessage(port: chrome.runtime.Port) {
+  port.onMessage.addListener(async (request) => {
+    if (request.type === 'CHAT') {
+      handleMessageMode(request.data, request.reasonMode, port)
+    } else if (request.type === 'TRANSLATE') {
+      handleMessageMode(request.data, request.reasonMode, port)
+    } else if (request.type === 'SUMMARY') {
+      handleMessageMode(request.data, request.reasonMode, port)
+    } else if (request.type === 'OPTIMIZE_TEXT') {
+      handleMessageMode(request.data, request.reasonMode, port)
+    } else if (request.type === 'CONTINUE_TEXT') {
+      handleMessageMode(request.data, request.reasonMode, port)
+    }
+  })
+  port.onDisconnect.addListener(() => {
+    console.log('连接已断开')
+  })
 }

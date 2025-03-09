@@ -1,4 +1,4 @@
-import { handleChatMessage } from './server/messageHandler'
+import { handleMessage } from './server/messageHandler'
 
 // 监听扩展程序安装事件
 chrome.runtime.onInstalled.addListener(() => {
@@ -31,19 +31,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 // 监听连接请求
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'koay') {
-    port.onMessage.addListener(async (request) => {
-      if (request.type === 'CHAT') {
-        handleChatMessage(request.data, request.reasonMode, port)
-      } else if (request.type === 'TRANSLATE') {
-        handleChatMessage(request.data, request.reasonMode, port)
-      } else if (request.type === 'SUMMARY') {
-        handleChatMessage(request.data, request.reasonMode, port)
-      } else if (request.type === 'OPTIMIZE_TEXT') {
-        handleChatMessage(request.data, request.reasonMode, port)
-      }
-    })
-    port.onDisconnect.addListener(() => {
-      console.log('连接已断开')
-    })
+    handleMessage(port)
   }
 })
